@@ -4,40 +4,61 @@
 
 #include "WiFiS3.h"
 #include <WebSocketsClient.h>
+#include <SocketIOclient.h>
 
 #define WIFI_SSID "Nick's Pixel XL"
 #define WIFI_PASS "4bb27c43ef22"
 
-WebSocketsClient webSocket;
+SocketIOclient socketIO;
  
-void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
+// void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
 
-  switch (type) {
-    case WStype_DISCONNECTED:
-      Serial.println("[WSc] Disconnected!");
-      break;
-    case WStype_CONNECTED:
-      Serial.println("[WSc] Connected!");
+//   switch (type) {
+//     case WStype_DISCONNECTED:
+//       Serial.println("[WSc] Disconnected!");
+//       break;
+//     case WStype_CONNECTED:
+//       Serial.println("[WSc] Connected!");
 
-      // send message to server when Connected
-      webSocket.sendTXT("Connected");
-      break;
-    case WStype_TEXT:
-      Serial.print("[WSc] get text:");
-      Serial.println((char *)payload);
+//       // send message to server when Connected
+//       webSocket.sendTXT("Connected");
+//       break;
+//     case WStype_TEXT:
+//       Serial.print("[WSc] get text:");
+//       Serial.println((char *)payload);
 
-      // send message to server
-      // webSocket.sendTXT("message here");
+//       // send message to server
+//       // webSocket.sendTXT("message here");
+//       break;
+//     case WStype_BIN:
+//       // send data to server
+//       // webSocket.sendBIN(payload, length);
+//       break;
+//     case WStype_ERROR:
+//     case WStype_FRAGMENT_TEXT_START:
+//     case WStype_FRAGMENT_BIN_START:
+//     case WStype_FRAGMENT:
+//     case WStype_FRAGMENT_FIN:
+//       break;
+//   }
+// }
+
+void socketIOEvent(socketIOmessageType_t type, uint8_t *payload, size_t length) {
+  switch(type) {
+    case sIOtype_DISCONNECT:
+      Serial.println("[IOc] Disconnected!");
       break;
-    case WStype_BIN:
-      // send data to server
-      // webSocket.sendBIN(payload, length);
+    case sIOtype_CONNECT:
+      Serial.println("[IOc] Connected!");
+
+      // join default namespace (no auto join in Socket.IO V3)
+      socketIO.send(sIOtype_CONNECT, "/");
       break;
-    case WStype_ERROR:
-    case WStype_FRAGMENT_TEXT_START:
-    case WStype_FRAGMENT_BIN_START:
-    case WStype_FRAGMENT:
-    case WStype_FRAGMENT_FIN:
+    case sIOtype_EVENT:
+    case sIOtype_ACK:
+    case sIOtype_ERROR:
+    case sIOtype_BINARY_EVENT:
+    case sIOtype_BINARY_ACK:
       break;
   }
 }
@@ -94,16 +115,22 @@ void setup() {
   Serial.print("IP Address: ");
   Serial.println(ip);
 
-  // server address, port and URL
-  webSocket.begin("129.21.148.69", 3000);
+  // Try connecting via socketIO
+  socketIO.begin("129.21.148.69", 3000);
+  socketIO.onEvent(socketIOEvent);
 
-  // event handler
-  webSocket.onEvent(webSocketEvent);
+  socketIO.setReconnectInterval(5000);
 
-  // try ever 5000 again if connection has failed
-  webSocket.setReconnectInterval(5000);
+  // // server address, port and URL
+  // webSocket.beginSocketIO("129.21.148.69", 3000);
+
+  // // event handler
+  // webSocket.onEvent(webSocketEvent);
+
+  // // try ever 5000 again if connection has failed
+  // webSocket.setReconnectInterval(5000);
 }
 
 void loop() {
-  webSocket.loop();
+  socketIO.loop();
 }
