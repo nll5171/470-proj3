@@ -1,0 +1,28 @@
+{
+  "name": "simple-socket",
+  "version": "1.0.0",
+  "description": "A simple socket.io example with Express",
+  "main": "./server/app.js",
+  "scripts": {
+    "nodemon": "nodemon --watch ./server ./server/app.js",
+    "start": "node ./server/app.js",
+    "pretest": "eslint ./server --fix",
+    "test": "echo \"tests complete\""
+  },
+  "author": "Austin Willoughby",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^8.57.1",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-plugin-import": "^2.31.0",
+    "nodemon": "^3.1.7"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "compression": "^1.7.5",
+    "express": "^4.21.1",
+    "express-handlebars": "^8.0.1",
+    "serve-favicon": "^2.5.0",
+    "socket.io": "^4.8.1"
+  }
+}
