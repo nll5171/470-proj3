@@ -39,7 +39,7 @@ const redrawCanvas = () => {
     ctx.drawImage(bg, 0, 0);
 
     // Draw the tree to the screen
-    ctx.drawImage(tree, 
+    ctx.drawImage(tree,
         (width / 2) - (tree.naturalWidth / 2),
         (height / 2) - (tree.naturalHeight / 2));
 
@@ -52,30 +52,40 @@ const redrawCanvas = () => {
 };
 
 const moveOrnament = (input) => {
-    // There is no current ornament, so make one
-    if (currentOrnament === -1) {
-        currentOrnament = ornaments.length;
-        const ornament = new Ornament(0, 0);
-        ornaments.push(ornament);
+    // Place ornament, and wait until next input is sent before moving another
+    if (input.pressed && currentOrnament !== -1) {
+        currentOrnament = -1;
     }
 
-    ornaments[currentOrnament].move(input.x, input.y);
+    else {
+        // There is no current ornament, so make one
+        if (currentOrnament === -1) {
+            currentOrnament = ornaments.length;
+            const ornament = new Ornament(0, 0);
+            ornaments.push(ornament);
+        }
+
+        ornaments[currentOrnament].move(input.xVal, input.yVal);
+    }
 };
 
-// Prevent moving the current ornament
-const placeOrnament = (data) => {
-    console.log(data);
+// Reset the ornament list
+const clearOrnaments = () => {
+    ornaments = [];
     currentOrnament = -1;
-}
+};
 
 const init = () => {
+    clearBtn = document.querySelector('#clear-ornaments');
+
     currentOrnament = -1;
     tree.src = '/assets/img/tree.png';
     bg.src = '/assets/img/canvas-background.png';
 
+    clearBtn.addEventListener('click', clearOrnaments);
+
     // Check if the server is sending input here
-    socket.on('move ornament', moveOrnament);
-    socket.on('place ornament', placeOrnament);
+    socket.on('user input', moveOrnament);
     requestAnimationFrame(redrawCanvas);
 };
 
